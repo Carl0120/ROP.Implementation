@@ -1,0 +1,5 @@
+Api/bin
+Api/obj
+.idea
+ROP.Implementation/obj
+ROP.Implementation/bin
