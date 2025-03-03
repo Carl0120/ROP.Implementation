@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using ROP.Implementation.Result;
+using ROP.Implementation.ResultExtensions;
 
 namespace Api.Controllers;
 
@@ -6,27 +8,12 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
 
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    [HttpGet(Name = "Get")]
+    public ResultAction<Unit> Get()
     {
-        _logger = logger;
-    }
+        ResultAction result = ResultAction.Success("Creado Correctamente");
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
-    {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+        return result.Ensure(e => e.Equals("Pedro"), new ErrorValidation("Error en la validacion"));
     }
 }

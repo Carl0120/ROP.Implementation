@@ -10,7 +10,20 @@ public class ResultAction<T> : IResultAction
 
     public IEnumerable<ErrorValidation> ValidationErrors { get; } = new List<ErrorValidation>();
 
-    public bool IsSusses => !ValidationErrors.Any();
+    public bool IsSusses => !ValidationErrors.Any() && Value is not null;
+
+    internal ResultAction(T? value, (string Message, string StatusCode, IEnumerable<ErrorValidation>) data)
+    {
+        if (value is null && !data.Item3.Any())
+        {
+            throw new InvalidDataException("La lista de Errores no puede estar Vacia");
+        }
+
+        ValidationErrors = data.Item3.ToList();
+        Message = data.Message;
+        StatusCode = data.StatusCode;
+        Value = value;
+    }
 
     protected ResultAction(T value, string message, string statusCode)
     {
@@ -41,6 +54,11 @@ public class ResultAction<T> : IResultAction
         {
             throw new InvalidDataException("La lista de Errores no puede estar Vacia");
         }
+    }
+
+    internal (string Message, string StatusCode, IEnumerable<ErrorValidation>) Deconstruct()
+    {
+        return (Message, StatusCode, ValidationErrors);
     }
 
     //Success200
