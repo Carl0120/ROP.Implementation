@@ -1,64 +1,36 @@
 namespace ROP.Implementation.Result;
 
-public class ResultAction<T> : IResultAction
+public class ResultAction<T> : ResultActionBase
 {
     public T? Value { get; private set; }
 
-    public string Message { get; private set; }
-
-    public string StatusCode { get; protected set; }
-
-    public IEnumerable<ErrorValidation> ValidationErrors { get; } = new List<ErrorValidation>();
-
-    public bool IsSusses => !ValidationErrors.Any() && Value is not null;
-
-    internal ResultAction(T? value, (string Message, string StatusCode, IEnumerable<ErrorValidation>) data)
+    internal ResultAction(T? value, ( IEnumerable<ErrorValidation> errors,string Message, string StatusCode) data) : base(data.errors.ToList(),data.Message,data.StatusCode)
     {
-        if (value is null && !data.Item3.Any())
-        {
+        if (value is null && !data.errors.Any())
             throw new InvalidDataException("La lista de Errores no puede estar Vacia");
-        }
-
-        ValidationErrors = data.Item3.ToList();
-        Message = data.Message;
-        StatusCode = data.StatusCode;
         Value = value;
     }
 
-    protected ResultAction(T value, string message, string statusCode)
-    {
-        Value = value;
-        Message = message;
-        StatusCode = statusCode;
-    }
+    private ResultAction(T value, string message, string statusCode) : base(message, statusCode) { Value = value; }
 
-    protected ResultAction(ErrorValidation error, string message, string statusCode)
+    private ResultAction(ErrorValidation error, string message, string statusCode) : base(error, message, statusCode) { Value = default; }
+
+    private ResultAction(List<ErrorValidation> error, string message, string statusCode) : base(error, message, statusCode)
     {
+        if (error.Count < 0)
+            throw new InvalidDataException("La lista de Errores no puede estar Vacia");
         Value = default;
-        List<ErrorValidation> errors = new(){error};
-        ValidationErrors = errors;
-        StatusCode = statusCode;
-        Message = message;
+
     }
 
-    protected ResultAction(List<ErrorValidation> error, string message, string statusCode)
+    internal (IEnumerable<ErrorValidation> validationErrors,  string message,  string statusCode) Deconstruct()
     {
-        if (error.Count > 0)
+        return new()
         {
-            StatusCode = statusCode;
-            Value = default;
-            ValidationErrors = error;
-            Message = message;
-        }
-        else
-        {
-            throw new InvalidDataException("La lista de Errores no puede estar Vacia");
-        }
-    }
-
-    internal (string Message, string StatusCode, IEnumerable<ErrorValidation>) Deconstruct()
-    {
-        return (Message, StatusCode, ValidationErrors);
+            validationErrors = ValidationErrors,
+            message = Message,
+            statusCode = StatusCode
+        };
     }
 
     //Success200

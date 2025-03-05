@@ -10,10 +10,14 @@ public class WeatherForecastController : ControllerBase
 {
 
     [HttpGet(Name = "Get")]
-    public ResultAction<Unit> Get()
+    public ResultAction<string> Get()
     {
-        ResultAction result = ResultAction.Success("Creado Correctamente");
+        ResultAction<int> result = ResultAction<int>.Success(5,"Creado Correctamente");
 
-        return result.Ensure(e => e.Equals("Pedro"), new ErrorValidation("Error en la validacion"));
+        ResultAction<string> res = result.Map("Pedro");
+
+        ResultAction<string> va =res.Ensure(e => e.Equals("Pedro"), "El tipo no se llama Juan");
+
+        return va;
     }
 }
