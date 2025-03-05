@@ -15,9 +15,9 @@ public class ResultAction<T> : ResultActionBase
 
     private ResultAction(ErrorValidation error, string message, string statusCode) : base(error, message, statusCode) { Value = default; }
 
-    private ResultAction(List<ErrorValidation> error, string message, string statusCode) : base(error, message, statusCode)
+    private ResultAction(IEnumerable<ErrorValidation> error, string message, string statusCode) : base(error, message, statusCode)
     {
-        if (error.Count < 0)
+        if (!error.Any())
             throw new InvalidDataException("La lista de Errores no puede estar Vacia");
         Value = default;
 
@@ -44,6 +44,10 @@ public class ResultAction<T> : ResultActionBase
     {
         return new ResultAction<T>(error, message, "400");
     }
+    public static ResultAction<T> BadRequest(IEnumerable<ErrorValidation> error, string message = "An ocurrido uno o mas errores de Validación")
+    {
+        return new ResultAction<T>(error.ToList(), message, "400");
+    }
     public static ResultAction<T> BadRequest(string identifier, string description, string message = "An ocurrido uno o mas errores de Validación")
     {
         return BadRequest(new ErrorValidation(identifier, description), message);
@@ -52,4 +56,5 @@ public class ResultAction<T> : ResultActionBase
     {
         return BadRequest(string.Empty, string.Empty, message);
     }
+
 }

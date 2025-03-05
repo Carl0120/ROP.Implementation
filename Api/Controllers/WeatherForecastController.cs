@@ -12,12 +12,13 @@ public class WeatherForecastController : ControllerBase
     [HttpGet(Name = "Get")]
     public ResultAction<string> Get()
     {
-        ResultAction<int> result = ResultAction<int>.Success(5,"Creado Correctamente");
+       return ResultAction<int>
+           .Success(5,"Creado Correctamente")
+             .Map("Pedro")
+             .Ensure(e => e == "Pedro"
+                ,"Nombre"
+                , "El tipo no se llama pedro");
 
-        ResultAction<string> res = result.Map("Pedro");
 
-        ResultAction<string> va =res.Ensure(e => e.Equals("Pedro"), "El tipo no se llama Juan");
-
-        return va;
     }
 }

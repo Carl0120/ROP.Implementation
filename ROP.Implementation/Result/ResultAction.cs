@@ -20,7 +20,6 @@ public class ResultAction : ResultActionBase
 
     private ResultAction(ErrorValidation error, string message, string statusCode) : base(error, message, statusCode){}
 
-
     //Success200
     public static ResultAction Success(string successMessage = "OK")
     {

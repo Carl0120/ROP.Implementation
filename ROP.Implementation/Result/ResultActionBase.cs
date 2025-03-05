@@ -2,11 +2,11 @@ namespace ROP.Implementation.Result;
 
 public abstract class ResultActionBase
 {
-    public string Message { get; protected set; }
+    public string Message { get; private set; }
 
-    public string StatusCode { get; protected set; }
+    public string StatusCode { get; private set; }
 
-    public IEnumerable<ErrorValidation> ValidationErrors { get; protected set; } = new List<ErrorValidation>();
+    public IEnumerable<ErrorValidation> ValidationErrors { get;} = new List<ErrorValidation>();
 
     public bool IsSusses => !ValidationErrors.Any();
 
@@ -23,7 +23,7 @@ public abstract class ResultActionBase
         ValidationErrors = new List<ErrorValidation> { error };
     }
 
-    protected ResultActionBase(List<ErrorValidation> error, string message, string statusCode)
+    protected ResultActionBase(IEnumerable<ErrorValidation> error, string message, string statusCode)
     {
         Message = message;
         StatusCode = statusCode;
