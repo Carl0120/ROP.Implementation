@@ -1,5 +1,7 @@
-Api/bin
-Api/obj
+bin/
+obj/
 .idea
-ROP.Implementation/obj
-ROP.Implementation/bin
+Api/
+qodana.yaml
+ROP.sln.DotSettings.user
+
