@@ -4,4 +4,6 @@ obj/
 Api/
 qodana.yaml
 ROP.sln.DotSettings.user
+ROP.sln
+global.json
 
