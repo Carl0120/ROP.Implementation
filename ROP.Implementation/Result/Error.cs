@@ -2,10 +2,6 @@ namespace ROP.Implementation.Result;
 
 public class ErrorValidation
 {
-    public string Identifier { get; set; }
-
-    public string ErrorMessage { get; set; }
-
     public ErrorValidation(string errorMessage)
     {
         ErrorMessage = errorMessage;
@@ -16,5 +12,14 @@ public class ErrorValidation
     {
         Identifier = identifier;
         ErrorMessage = errorMessage;
+    }
+
+    public string Identifier { get; }
+
+    public string ErrorMessage { get;}
+
+    public static List<ErrorValidation> Empty()
+    {
+        return new List<ErrorValidation>();
     }
 }

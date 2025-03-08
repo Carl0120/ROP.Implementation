@@ -1,3 +1,4 @@
+using Api.ResultExtensions;
 using Microsoft.AspNetCore.Mvc;
 using ROP.Implementation.Result;
 using ROP.Implementation.ResultExtensions;
@@ -8,17 +9,11 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-
     [HttpGet(Name = "Get")]
-    public ResultAction<string> Get()
+    public IActionResult Get()
     {
-       return ResultAction<int>
-           .Success(5,"Creado Correctamente")
-             .Map("Pedro")
-             .Ensure(e => e == "Pedro"
-                ,"Nombre"
-                , "El tipo no se llama pedro");
-
-
+        var result = ResultAction.Success();
+        var res = result.Map(5).MatchToActionResult();
+        return res;
     }
 }
