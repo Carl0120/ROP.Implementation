@@ -61,7 +61,7 @@ public class ResultActionTests
         Assert.Equal(ResultCode.BadRequest, result.StatusCode);
         Assert.Single(result.ValidationErrors!);
         Assert.Equal(error, result.ValidationErrors!.First());
-        Assert.True(result.IsSuccess);
+        Assert.False(result.IsSuccess);
     }
 
     [Fact]
