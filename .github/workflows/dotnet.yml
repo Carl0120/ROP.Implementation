@@ -39,10 +39,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # Restaurar las Depenencias del proyecto
-      - name: Restore dependencies
-        run: dotnet restore --verbosity minimal
-
       # Compilar ROP (librería base)
       - name: Build ROP Library
         run: dotnet build Rop/Rop.csproj --configuration Release
