@@ -1,28 +1,71 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: .NET CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "development" ]
+    paths-ignore: # Ignora cambios que no afectan al build
+      - '**.md'
+      - '**.txt'
+      - '.gitignore'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "development" ]
+
+env:
+  DOTNET_VERSION: '6.0.408' # Versión específica para consistencia
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1 # Desactiva telemetría
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest # Más rápido y económico que Windows
+    strategy:
+      matrix:
+        dotnet: ['6.0.x']
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore --verbosity minimal
+
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore --verbosity minimal
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage" \
+            --settings coverlet.runsettings
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: |
+            **/TestResults/*.trx
+            **/coverage.cobertura.xml
+
+      - name: Check vulnerabilities
+        run: dotnet list package --vulnerable --include-transitive
