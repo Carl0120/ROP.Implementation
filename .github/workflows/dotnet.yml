@@ -13,41 +13,43 @@ on:
     branches: [ "development" ]
 
 env:
-  DOTNET_VERSION: '6.0.408' # Versión específica para consistencia
-  DOTNET_CLI_TELEMETRY_OPTOUT: 1 # Desactiva telemetría
+  # Versión específica para consistencia
+  DOTNET_VERSION: '6.0.408'
+
+  # Desactiva telemetría
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+  #Ruta de paquetes nuget
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
 jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest # Más rápido y económico que Windows
-    strategy:
-      matrix:
-        dotnet: ['6.0.x']
 
     steps:
+
+      # Analizar el codigo
       - name: Checkout code
         uses: actions/checkout@v4
 
+      #Instalar el sdk de .net
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.NUGET_PACKAGES }}
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
+      # Restaurar las Depenencias del proyecto
       - name: Restore dependencies
         run: dotnet restore --verbosity minimal
 
+        # Construir la solucion
+
+     # Construir la solucion
       - name: Build solution
         run: dotnet build --configuration Release --no-restore --verbosity minimal
 
+      # Correr los test
       - name: Run tests with coverage
         run: |
           dotnet test \
@@ -58,14 +60,5 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --settings coverlet.runsettings
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: test-results
-          path: |
-            **/TestResults/*.trx
-            **/coverage.cobertura.xml
 
-      - name: Check vulnerabilities
-        run: dotnet list package --vulnerable --include-transitive
+
