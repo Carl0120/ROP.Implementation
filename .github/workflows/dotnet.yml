@@ -43,22 +43,24 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore --verbosity minimal
 
-        # Construir la solucion
+      # Compilar ROP (librería base)
+      - name: Build ROP Library
+        run: dotnet build Rop/Rop.csproj --configuration Release
 
-     # Construir la solucion
-      - name: Build solution
-        run: dotnet build --configuration Release --no-restore --verbosity minimal
+      # Compilar ROP.AspNetCore (librería web)
+      - name: Build ROP.AspNetCore Library
+        run: dotnet build Rop.AspNetCore/Rop.AspNetCore.csproj --configuration Release
 
-      # Correr los test
-      - name: Run tests with coverage
-        run: |
-          dotnet test \
-            --configuration Release \
-            --no-build \
-            --verbosity normal \
-            --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage" \
-            --settings coverlet.runsettings
+      # Ejecutar tests
+      - name: Run Tests
+        run: dotnet test UnitTest/UnitTest.csproj --configuration Release --logger "trx;LogFileName=test-results.trx"
 
+      # Guardar los resultados de los test
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: UnitTest/TestResults/*.trx
 
 
