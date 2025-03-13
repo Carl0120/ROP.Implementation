@@ -79,17 +79,23 @@ namespace Rop.Result
         }
 
         //NotFound404
-        public static ResultAction<T> NotFound(string resource = "solicitado")
+        public static ResultAction<T> NotFound(string errorMessage = "No se encontro en recurso solicitado")
         {
-            return new ResultAction<T>(ErrorValidation.Empty(), $"No se encontro en recurso {resource}",
-                ResultCode.NotFound);
+            return new ResultAction<T>(ErrorValidation.Empty(), errorMessage, ResultCode.NotFound);
         }
 
         //Unauthorized401
-        public static ResultAction<T> Unauthorized(string resource = "solicitado")
+        public static ResultAction<T> Unauthorized(string errorMessage = "No esta autorizado para acceder al recurso solicitado")
         {
-            return new ResultAction<T>(ErrorValidation.Empty(), $"No esta autorizado para acceder al recurso {resource}",
-                ResultCode.Unauthorized);
+            return new ResultAction<T>(ErrorValidation.Empty(), errorMessage, ResultCode.Unauthorized);
+        }
+
+        public static ResultAction<T> Create(T? value, string errorMessage)
+        {
+            if (value is not null)
+             return ResultAction<T>.Success(value);
+
+            return ResultAction<T>.NotFound(errorMessage);
         }
     }
 }
